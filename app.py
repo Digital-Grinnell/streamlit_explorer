@@ -33,6 +33,9 @@ def get_subfolders_and_files(folder_path):
     folder_path = os.path.normpath(folder_path).replace("\\", "/")
     
     try:
+
+        regex = state('file_regex')
+
         for item in os.listdir(folder_path):
             item_path = os.path.join(folder_path, item)
 
@@ -48,8 +51,14 @@ def get_subfolders_and_files(folder_path):
 
             if os.path.isdir(item_path):
                 subfolders.append({"name": item, "path": os.path.normpath(item_path)})
+
             else:
-                files.append({"name": item, "path": os.path.normpath(item_path)})
+                if regex:
+                    extension = os.path.splitext(item_path)[1]
+                    if extension == regex:
+                        files.append({"name": item, "path": os.path.normpath(item_path)})
+                else:
+                    files.append({"name": item, "path": os.path.normpath(item_path)})
 
             # Sort the folders and files before returning
             sorted_sub = sorted(subfolders, key=lambda d: d['name'])
@@ -98,12 +107,25 @@ def generate_folder_links(folder_path):
             for subfolder in subfolders
         ]
         
-        files_list = [
-            f'<a href="{file_links[file["name"]]}">'
-            f'{LIST_STYLE}<font color="{COLOR_2}"> - </font> {file["name"]}'
-            f"</a>"
-            for file in files
-        ]
+        # files_list = [
+        #     f'<a href="#" id="{file_links[file["name"]]}">'
+        #     f'{LIST_STYLE}<font color="{COLOR_2}"> - </font> {file["name"]}'
+        #     f"</a>"
+        #     for file in files
+        # ]
+
+        # Rebuild the files_list showing selected files with a checkmark.
+        files_list = [ ]
+        selected = state('selected_files')
+
+        for file in files:
+            if selected and (file["path"] in selected):
+                symbol = " &#10004; "
+            else: 
+                symbol = " - "
+            files_list.append(f'<a href="#" id="{file_links[file["name"]]}">'
+            f'{LIST_STYLE}<font color="{COLOR_2}">{symbol}</font> {file["name"]}'
+            f"</a>")
 
     st.session_state["subdirs"] = "<br>".join(folder_list or [ ])
     st.session_state["files"] = "<br>".join(files_list or [ ])
@@ -150,7 +172,17 @@ def file_selected( ):
     click = did_click(state("files"), None)
     logger.warning(f'files click is: {click}')
     if click:
-        st.session_state['selected_files'].append(click)
+
+        selected = state('selected_files')
+
+        # Append the selection to our list
+        if click not in selected:
+            st.session_state['selected_files'].append(click)       
+            
+        # Remove the selection from our list    
+        else:
+            st.session_state['selected_files'].remove(click)       
+            
         update_paths( )
         st.session_state["run_again"] = True
 
@@ -195,6 +227,18 @@ def state(key):
         return False
 
 
+def go_for_processing( ):
+    st.warning(f"The 'go_for_processing' button has been pressed but needs code!")
+
+
+def clear_file_regex( ):
+    st.session_state.file_regex = False
+
+
+def clear_selected_files( ):
+    st.session_state.selected_files = ["."]
+
+
 # MAIN ---------------------------------------------------------
 
 if __name__ == '__main__':
@@ -205,24 +249,59 @@ if __name__ == '__main__':
         logger.info('This is streamlit_explorer/app.py!')
         st.session_state.logger = logger
     if not state('selected_files'):
-        st.session_state.selected_files = [ ]
+        st.session_state.selected_files = ["."]   # must be initialized to a non-empty array!
     if not state('remove_path_levels'):
         st.session_state.remove_path_levels = 4
+    if not state('file_regex'):
+        st.session_state.file_regex = False
+
     
     # Add a sidebar for control and display.
     with st.sidebar:
 
-        # Monitor new_path
-        if state('new_path'):
-            st.success(f"new_path is: {state('new_path')}")
+        # Prep for number of selected files
+        selected = state('selected_files')
+        count = len(selected) - 1
 
-        # List of selected files...
-        st.write("Selected files:")
-        if state('selected_files'):
-            for file in state('selected_files'):
-                st.write(file)
+        # File type regex...
+        if not count:
+            st.session_state['file_regex'] = st.text_input(f"Specify ONE file type/extension to limit your list of selectable files.", help=f"For example, '.html' to list only files with an 'html' extension.  Be sure to include the leading period!", value="")
         else:
-            st.warning("None")
+            st.warning(f"You have specified a file type/extension of **{state('file_regex')}** to limit your list of selectable files.\n\nThis setting cannot be changed if you have already selected one or more files for processing.")
+
+        # Clear regex...
+        if state('file_regex'):
+            st.button(f"Clear File Type/Extension Matching", help=f"Click here to clear your file extension regex.", on_click=clear_file_regex)
+
+        # Number of selected files
+        # plural logic from https://stackoverflow.com/questions/21872366/plural-string-formatting
+        if count:
+            st.success(f"You have {count} file{'s'[:count^1]} selected for processing.")  
+        else:
+            st.warning(f"You have NO files selected for processing")
+
+        # Clear selected files...
+        if state('selected_files'):
+            st.button(f"Clear Selected File List", help=f"Click here to clear your selected file list.", on_click=clear_selected_files)
+
+        # Number of subdir levels to remove from paths (default is 4)
+        st.session_state['remove_path_levels'] = st.number_input(f"Number of prefix subdirs to remove for relative paths", min_value=0, value=4)   
+
+        if count > 0:
+            st.button(f"Go for Processing {count} File{'s'[:count^1]}!", help=f"Click here once all files have been selected for processing.", on_click=go_for_processing)
+
+        # # Monitor new_path
+        #     if state('new_path'):
+        #     st.success(f"new_path is: {state('new_path')}")
+
+        # # List of selected files...
+        # st.write("Selected files:")
+        # if state('selected_files'):
+        #     for file in state('selected_files'):
+        #         st.write(file)
+        # else:
+        #     st.warning("None")
+
 
     st.session_state["my_path"] = update_new_path( )
 
