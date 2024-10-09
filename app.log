@@ -2688,3 +2688,52 @@
 2024-10-09 14:38:42.766 | WARNING  | __main__:file_selected:149 - files click is: 
 2024-10-09 14:38:42.766 | WARNING  | __main__:file_selected:149 - files click is: 
 2024-10-09 14:38:42.766 | WARNING  | __main__:file_selected:149 - files click is: 
+2024-10-09 14:44:15.477 | INFO     | __main__:<module>:205 - This is streamlit_explorer/app.py!
+2024-10-09 14:44:15.850 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:44:15.851 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:44:19.169 | WARNING  | __main__:update_from_crumb:131 - crumb_list clicked: /Users/mcfatem/GitHub
+2024-10-09 14:44:19.176 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:44:19.900 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:44:19.955 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:44:19.958 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:44:29.202 | WARNING  | __main__:update_subdirs:141 - subdirs click is: /Users/mcfatem/GitHub/streamlit_explorer
+2024-10-09 14:44:29.208 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:44:29.254 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:44:29.256 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:45:24.081 | WARNING  | __main__:update_subdirs:141 - subdirs click is: /Users/mcfatem/GitHub/streamlit_explorer/.venv
+2024-10-09 14:45:24.089 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:45:24.139 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:45:24.140 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:45:30.244 | WARNING  | __main__:update_from_crumb:131 - crumb_list clicked: /Users/mcfatem/GitHub/streamlit_explorer
+2024-10-09 14:45:30.250 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:45:30.254 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:45:30.306 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:45:30.308 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:46:22.930 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:46:22.932 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:46:28.813 | WARNING  | __main__:update_subdirs:141 - subdirs click is: /Users/mcfatem/GitHub/streamlit_explorer/.venv
+2024-10-09 14:46:28.826 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:46:28.868 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:46:28.869 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:46:41.683 | WARNING  | __main__:update_subdirs:141 - subdirs click is: /Users/mcfatem/GitHub/streamlit_explorer/.venv/include
+2024-10-09 14:46:41.686 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:46:41.721 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:46:41.723 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:46:47.046 | WARNING  | __main__:update_from_crumb:131 - crumb_list clicked: /Users/mcfatem/GitHub/streamlit_explorer
+2024-10-09 14:46:47.055 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:46:47.059 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:46:47.105 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:46:47.107 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:47:08.264 | WARNING  | __main__:update_from_crumb:131 - crumb_list clicked: /Users/mcfatem
+2024-10-09 14:47:08.270 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:47:08.273 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:47:08.436 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:47:08.438 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:47:14.899 | WARNING  | __main__:update_subdirs:141 - subdirs click is: /Users/mcfatem/GitHub
+2024-10-09 14:47:14.906 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:47:14.951 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:47:14.953 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:47:18.798 | WARNING  | __main__:update_subdirs:141 - subdirs click is: /Users/mcfatem/GitHub/streamlit_explorer
+2024-10-09 14:47:18.805 | WARNING  | __main__:file_selected:151 - files click is: 
+2024-10-09 14:47:18.851 | WARNING  | __main__:update_subdirs:141 - subdirs click is: 
+2024-10-09 14:47:18.853 | WARNING  | __main__:file_selected:151 - files click is: 

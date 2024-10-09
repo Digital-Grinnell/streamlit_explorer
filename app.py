@@ -80,11 +80,13 @@ def generate_folder_links(folder_path):
     crumbs = {crumb["name"]: crumb["path"] for crumb in paths}
     current_crumb = paths[-1]["name"]
 
-    st.session_state["dir_list"] = f'/'.join([f'<a href="#" id="{crumbs[crumb["name"]]}">{crumb["name"]}</a>' for crumb in paths[:-1]] + [f'{LARGE}{current_crumb}'])
+    st.session_state["crumb_list"] = f'/'.join([f'<a href="#" id="{crumbs[crumb["name"]]}">{crumb["name"]}</a>' for crumb in paths[:-1]] + [f'{LARGE}{current_crumb}'])
 
     folder_links = {sub["name"]: sub["path"] for sub in subfolders}
     file_links = {file["name"]: file["path"] for file in files}
+
     folder_list = None
+    files_list = None
 
     if len(subfolders) > 0:
         num_of_columns = 3
@@ -103,12 +105,12 @@ def generate_folder_links(folder_path):
             for file in files
         ]
 
-    st.session_state["dirs"] = "<br>".join(folder_list or [ ])
+    st.session_state["subdirs"] = "<br>".join(folder_list or [ ])
     st.session_state["files"] = "<br>".join(files_list or [ ])
 
 
 def update_paths( ):
-    my_path = st.session_state.get("mypath", os.getcwd( ))
+    my_path = st.session_state.get("my_path", os.getcwd( ))
     try:
         subfolders, files = get_subfolders_and_files(my_path)
         st.session_state["subfolders"] = subfolders
@@ -123,20 +125,20 @@ def update_paths( ):
 
 
 def update_from_crumb( ):
-    # logger.info(f'dir_list is: {state('dir_list')}')
-    click = did_click(state("dir_list"), None)
+    # logger.info(f'crumb_list is: {state('crumb_list')}')
+    click = did_click(state("crumb_list"), None)
     if click:
-        logger.warning(f'dir_list clicked: {click}')
+        logger.warning(f'crumb_list clicked: {click}')
         st.session_state["new_crumb"] = click
         if state("new_crumb"):
             update_paths( )
             st.session_state["run_again"] = True
 
 
-def update_dirs( ):
-    # logger.info(f'dirs is: {state('dirs')}')
-    click = did_click(state("dirs"), None)
-    logger.warning(f'dirs click is: {click}')
+def update_subdirs( ):
+    # logger.info(f'subdirs is: {state('subdirs')}')
+    click = did_click(state("subdirs"), None)
+    logger.warning(f'subdirs click is: {click}')
     st.session_state["new_subfolder"] = click
     if state("new_subfolder"):
         update_paths( )
@@ -154,7 +156,7 @@ def file_selected( ):
 
 
 def new_path( ):
-    current_path = st.session_state.get("mypath", os.getcwd( ))
+    current_path = st.session_state.get("my_path", os.getcwd( ))
     new_crumb = st.session_state.get("new_crumb")
     new_subfolder = st.session_state.get("new_subfolder")
     if new_crumb:
@@ -171,7 +173,7 @@ def update_new_path( ):
     update_paths( )
     generate_folder_links(state("new_path"))
     update_from_crumb( )
-    update_dirs( )
+    update_subdirs( )
     file_selected( )
     new_path( )
     return state("new_path")
@@ -212,11 +214,7 @@ if __name__ == '__main__':
 
         # Monitor new_path
         if state('new_path'):
-            st.success(state('new_path'))
-
-        # Monitor new_subfolder
-        if state('new_subfolder'):
-            st.success(state('new_subfolder'))
+            st.success(f"new_path is: {state('new_path')}")
 
         # List of selected files...
         st.write("Selected files:")
@@ -226,11 +224,12 @@ if __name__ == '__main__':
         else:
             st.warning("None")
 
-    st.session_state["mypath"] = update_new_path( )
+    st.session_state["my_path"] = update_new_path( )
 
     if state("run_again"):
         st.session_state["run_again"] = False
         update_paths( )
+        state("my_path")
         st.rerun( )
 
-    state("mypath")
+    state("my_path")
