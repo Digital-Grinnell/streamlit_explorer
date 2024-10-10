@@ -212,13 +212,15 @@ def new_path( ):
 
 
 def update_new_path( ):
-    new_path( )
-    update_paths( )
-    generate_folder_links(state("new_path"))
-    update_from_crumb( )
-    update_subdirs( )
-    file_selected( )
-    new_path( )
+    if state('mode') == 'select':
+        new_path( )
+        update_paths( )
+        generate_folder_links(state("new_path"))
+        update_from_crumb( )
+        update_subdirs( )
+        file_selected( )
+        new_path( )
+
     return state("new_path")
 
 
@@ -237,11 +239,17 @@ def state(key):
         # st.exception(f"Exception: {e}")
         return False
 
-
+# go_for_processing( ) - The guts of the app after files have been selected. Git 'er done!
+# -------------------------------------------------------------------------------
 def go_for_processing( ):
-    st.warning(f"The 'go_for_processing' button has been pressed but needs code!")
+    st.session_state.mode = 'processing'
+    with st.container(key='process-container'):
+        st.empty( )
+        st.warning(f"The 'go_for_processing' button has been pressed but needs code!")
 
 
+# clear_selected_files( ) - Just what the name says.
+# -------------------------------------------------------------------------------
 def clear_selected_files( ):
     st.session_state.selected_files = ["."]
 
@@ -251,6 +259,8 @@ def clear_selected_files( ):
 if __name__ == '__main__':
 
     # Initialize the session_state
+    if not state('mode'):
+        st.session_state.mode = 'select'
     if not state('logger'):
         logger.add("app.log", rotation="500 MB")
         logger.info('This is streamlit_explorer/app.py!')
@@ -264,7 +274,6 @@ if __name__ == '__main__':
     if not state('show_hidden'):
         st.session_state.show_hidden = True
 
-    
     # Add a sidebar for control and display.
     with st.sidebar:
 
@@ -281,8 +290,10 @@ if __name__ == '__main__':
             r = state('file_regex')
             if r and not r.startswith('.'):
                 st.session_state['file_regex'] = '.' + r    
+        elif not state('file_regex'):
+            st.warning(f"You have specified NO file type/extension to limit your list of selectable files.\n\nThis setting cannot be changed since you have one or more files selected for processing.")
         else:
-            st.warning(f"You have specified a file type/extension of **{state('file_regex')}** to limit your list of selectable files.\n\nThis setting cannot be changed if you have already selected one or more files for processing.")
+            st.warning(f"You have specified a file type/extension of '**{state('file_regex')}**' to limit your list of selectable files.\n\nThis setting cannot be changed since you have one or more files selected for processing.")
 
         # Number of selected files
         # plural logic from https://stackoverflow.com/questions/21872366/plural-string-formatting
@@ -314,12 +325,14 @@ if __name__ == '__main__':
         #     st.warning("None")
 
 
-    st.session_state["my_path"] = update_new_path( )
+    with st.container(key='main-container'):
 
-    if state("run_again"):
-        st.session_state["run_again"] = False
-        update_paths( )
+        st.session_state["my_path"] = update_new_path( )
+
+        if state("run_again"):
+            st.session_state["run_again"] = False
+            update_paths( )
+            state("my_path")
+            st.rerun( )
+
         state("my_path")
-        st.rerun( )
-
-    state("my_path")

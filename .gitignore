@@ -1,2 +1,2 @@
 .venv/
-*.log
+app.log
