@@ -3,6 +3,7 @@ from st_click_detector import click_detector as did_click
 import os 
 import streamlit as st
 from loguru import logger
+import frontmatter
 
 COLOR_1 = "#0088ff"
 COLOR_2 = "#ff8800" 
@@ -237,37 +238,44 @@ def clear_selected_files( ):
 # line_open_and_close(filename)   
 # ...from https://stackoverflow.com/questions/5914627/prepend-line-to-beginning-of-a-file
 # -----------------------------------------------------------------------------
-def line_open_and_close(filename):
+def line_open_and_close(filename, prefix):
 
     path = filename
     if state('remove_path_levels'):
         num = state('remove_path_levels')
         parts = filename.split('/')
-        remove = '/'.join(parts[:4]) + '/'
+        remove = '/'.join(parts[:num]) + '/'
         path = filename.replace(remove, '')    
 
-    tag2 = f"<!-- /cb: {path} -->"
-    
-    # Write the closing tag first!
-    f = open(filename,'a')
-    f.write(tag2)
-    f.close( )
+    # Build the tags
+    tag1 = f"<!-- {prefix} {path} -->"
+    tag2 = tag1.replace(prefix, "/" + prefix)
 
-    logger.info(f"Appended tag '{tag2}' to selected file")
-
-    # Now the opening tag
-    tag1 = tag2.replace("/cb:", "cb:")
+    # Assume frontmatter is present, wrap 'content' portion of file with tags
     with open(filename, 'r+') as f:
-        content = f.read( )
+        fmc = frontmatter.load(f)
+        # (metadata, content) = frontmatter.parse(f.read( ))
+        final = tag1.rstrip('\r\n') + '\n' + fmc.content + '\n' + tag2.rstrip('\r\n')
+        fmc.content = final
+        if fmc.metadata:
+            complete = frontmatter.dumps(fmc)
+            logger.info(f"Inserted tag '{tag1}' following {path} frontmatter")
+        else:
+            complete = final
+            logger.info(f"No frontmatter detected, tag '{tag1}' prepended to {path}")
         f.seek(0, 0)
-        f.write(tag1.rstrip('\r\n') + '\n' + content)
+        f.write(complete)
+        f.close( )
 
-    logger.info(f"Prepended tag '{tag1}' to selected file")
+        logger.info(f"Appended tag '{tag2}' to end of {path}")
 
 
 # go_for_processing( ) - The guts of the app after files have been selected. Git 'er done!
 # -------------------------------------------------------------------------------
 def go_for_processing( ):
+
+    prefix = state('tag_prefix')
+
     st.session_state.mode = 'processing'
     page = st.empty( )
     count = 0
@@ -285,7 +293,7 @@ def go_for_processing( ):
 
             # Not skipped...get to work!
             count += 1
-            line_open_and_close(selected)
+            line_open_and_close(selected, prefix)
     
 
     # All done, return mode to 'select'        
@@ -314,6 +322,8 @@ if __name__ == '__main__':
     if not state('show_hidden'):
         st.session_state.show_hidden = True
 
+    if not state('tag_prefix'):
+        st.session_state.tag_prefix = 'cb:'
     if not state('remove_path_levels'):
         st.session_state.remove_path_levels = 4
 
@@ -349,23 +359,14 @@ if __name__ == '__main__':
         if count:
             st.button(f"Clear Selected File List", help=f"Click here to clear your selected file list.", on_click=clear_selected_files)
 
+        # Tag prefix text (default is 'cb:')
+        st.session_state['tag_prefix'] = st.text_input(f"Prefix to apply inside tags", value='cb:')   
+
         # Number of subdir levels to remove from paths (default is 4)
         st.session_state['remove_path_levels'] = st.number_input(f"Number of prefix subdirs to remove for relative paths", min_value=0, value=4)   
 
         if count > 0:
             st.button(f"Go for Processing {count} File{'s'[:count^1]}!", help=f"Click here once all files have been selected for processing.", on_click=go_for_processing)
-
-        # # Monitor new_path
-        #     if state('new_path'):
-        #     st.success(f"new_path is: {state('new_path')}")
-
-        # # List of selected files...
-        # st.write("Selected files:")
-        # if state('selected_files'):
-        #     for file in state('selected_files'):
-        #         st.write(file)
-        # else:
-        #     st.warning("None")
 
 
     with st.container(key='main-container'):
