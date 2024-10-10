@@ -56,7 +56,7 @@ def get_subfolders_and_files(folder_path):
             if not state('show_hidden'):
                 base = os.path.basename(item_path)
                 if base.startswith('.'):
-                    logger.warning(f"{item_path} is hidden and will not be displayed")
+                    # logger.warning(f"{item_path} is hidden and will not be displayed")
                     continue
 
             if os.path.isdir(item_path):
@@ -148,7 +148,7 @@ def update_from_crumb( ):
     # logger.info(f'crumb_list is: {state('crumb_list')}')
     click = did_click(state("crumb_list"), None)
     if click:
-        logger.warning(f'crumb_list clicked: {click}')
+        # logger.warning(f'crumb_list clicked: {click}')
         st.session_state["new_crumb"] = click
         if state("new_crumb"):
             update_paths( )
@@ -157,7 +157,7 @@ def update_from_crumb( ):
 def update_subdirs( ):
     # logger.info(f'subdirs is: {state('subdirs')}')
     click = did_click(state("subdirs"), None)
-    logger.warning(f'subdirs click is: {click}')
+    # logger.warning(f'subdirs click is: {click}')
     st.session_state["new_subfolder"] = click
     if state("new_subfolder"):
         update_paths( )
@@ -167,7 +167,7 @@ def file_selected( ):
     # logger.info(f'files is: {state('files')}')
     if state('files'):
       click = did_click(state("files"), None)
-      logger.warning(f'files click is: {click}')
+      # logger.warning(f'files click is: {click}')
       if click:
 
           selected = state('selected_files')
@@ -305,7 +305,7 @@ if __name__ == '__main__':
         st.session_state.mode = 'select'
     if not state('logger'):
         logger.add("app.log", rotation="500 MB")
-        logger.info('This is streamlit_explorer/app.py!')
+        logger.info('This is add-template-tracking/app.py!')
         st.session_state.logger = logger
     if not state('selected_files'):
         st.session_state.selected_files = ["."]   # must be initialized to a non-empty array!
