@@ -26,6 +26,9 @@ LARGE = """<style>
 # @st.cache_data
 # st.cache(lambda: st.session_state, allow_output_mutation=True)
 
+# File Select functions from https://github.com/Digital-Grinnell/streamlit_explorer
+# -------------------------------------------------------------------------------------
+
 def get_subfolders_and_files(folder_path):
     subfolders = [{"name":"..", "path":str(Path(folder_path).parent)}]
     files = [ ]
@@ -76,7 +79,6 @@ def get_subfolders_and_files(folder_path):
     except Exception as e:
         st.exception(e)
 
-
 def get_folder_list(folder_path):
     folder_list = [ ]
     current_path = ""
@@ -88,7 +90,6 @@ def get_folder_list(folder_path):
         folder_list.append({"name": folder, "path": current_path})
     return folder_list
 
-
 def generate_folder_links(folder_path):
     paths = state("crumbs")
     subfolders, files = get_subfolders_and_files(folder_path)
@@ -96,12 +97,6 @@ def generate_folder_links(folder_path):
     current_crumb = paths[-1]["name"]
 
     st.session_state["crumb_list"] = f'/'.join([f'<a href="#" id="{crumbs[crumb["name"]]}">{crumb["name"]}</a>' for crumb in paths[:-1]] + [f'{LARGE}{current_crumb}'])
-
-    # folder_links = dict( )
-    # folder_links[".."] = str(Path(folder_path).parent)
-    # for sub in subfolders:
-    #     folder_links[sub['name']] = sub['path']
-
 
     folder_links = {sub["name"]: sub["path"] for sub in subfolders}
     file_links = {file["name"]: file["path"] for file in files}
@@ -135,7 +130,6 @@ def generate_folder_links(folder_path):
     st.session_state["subdirs"] = "<br>".join(folder_list or [ ])
     st.session_state["files"] = "<br>".join(files_list or [ ])
 
-
 def update_paths( ):
     my_path = st.session_state.get("my_path", os.getcwd( ))
     try:
@@ -150,7 +144,6 @@ def update_paths( ):
     except Exception as e:
         st.exception(e)
 
-
 def update_from_crumb( ):
     # logger.info(f'crumb_list is: {state('crumb_list')}')
     click = did_click(state("crumb_list"), None)
@@ -161,7 +154,6 @@ def update_from_crumb( ):
             update_paths( )
             st.session_state["run_again"] = True
 
-
 def update_subdirs( ):
     # logger.info(f'subdirs is: {state('subdirs')}')
     click = did_click(state("subdirs"), None)
@@ -170,7 +162,6 @@ def update_subdirs( ):
     if state("new_subfolder"):
         update_paths( )
         st.session_state["run_again"] = True
-
 
 def file_selected( ):
     # logger.info(f'files is: {state('files')}')
@@ -197,7 +188,6 @@ def file_selected( ):
         update_paths( )
         st.session_state["run_again"] = True
 
-
 def new_path( ):
     current_path = st.session_state.get("my_path", os.getcwd( ))
     new_crumb = st.session_state.get("new_crumb")
@@ -210,7 +200,6 @@ def new_path( ):
     else:
         st.session_state["new_path"] = current_path
 
-
 def update_new_path( ):
     if state('mode') == 'select':
         new_path( )
@@ -222,7 +211,6 @@ def update_new_path( ):
         new_path( )
 
     return state("new_path")
-
 
 # state(key) - Return the value of st.session_state[key] or False
 # If state is set and equal to "None", return False.
@@ -239,19 +227,73 @@ def state(key):
         # st.exception(f"Exception: {e}")
         return False
 
+def clear_selected_files( ):
+    st.session_state.selected_files = ["."]
+
+# --- End of File Select functions from https://github.com/Digital-Grinnell/streamlit_explorer
+# ----------------------------------------------------------------------------------
+
+
+# line_open_and_close(filename)   
+# ...from https://stackoverflow.com/questions/5914627/prepend-line-to-beginning-of-a-file
+# -----------------------------------------------------------------------------
+def line_open_and_close(filename):
+
+    path = filename
+    if state('remove_path_levels'):
+        num = state('remove_path_levels')
+        parts = filename.split('/')
+        remove = '/'.join(parts[:4]) + '/'
+        path = filename.replace(remove, '')    
+
+    tag2 = f"<!-- /cb: {path} -->"
+    
+    # Write the closing tag first!
+    f = open(filename,'a')
+    f.write(tag2)
+    f.close( )
+
+    logger.info(f"Appended tag '{tag2}' to selected file")
+
+    # Now the opening tag
+    tag1 = tag2.replace("/cb:", "cb:")
+    with open(filename, 'r+') as f:
+        content = f.read( )
+        f.seek(0, 0)
+        f.write(tag1.rstrip('\r\n') + '\n' + content)
+
+    logger.info(f"Prepended tag '{tag1}' to selected file")
+
+
 # go_for_processing( ) - The guts of the app after files have been selected. Git 'er done!
 # -------------------------------------------------------------------------------
 def go_for_processing( ):
     st.session_state.mode = 'processing'
-    with st.container(key='process-container'):
-        st.empty( )
-        st.warning(f"The 'go_for_processing' button has been pressed but needs code!")
+    page = st.empty( )
+    count = 0
 
+    with page.container(key='process-container'):
+        msg = f"This is 'go_for_processing'!"
+        logger.info(msg)
+        st.warning(msg)
 
-# clear_selected_files( ) - Just what the name says.
-# -------------------------------------------------------------------------------
-def clear_selected_files( ):
-    st.session_state.selected_files = ["."]
+        # Open each file, make additions and display it briefly, them move on to the next
+        for selected in state('selected_files'):
+            if selected in [".",".."]:
+                logger.warning(f"Skipping selected file: {selected}")
+                continue
+
+            # Not skipped...get to work!
+            count += 1
+            line_open_and_close(selected)
+    
+
+    # All done, return mode to 'select'        
+    with page:
+        st.session_state.mode = 'select'
+        clear_selected_files( )
+        st.success(f"Processing completed for {count} files!")
+
 
 
 # MAIN ---------------------------------------------------------
@@ -267,12 +309,13 @@ if __name__ == '__main__':
         st.session_state.logger = logger
     if not state('selected_files'):
         st.session_state.selected_files = ["."]   # must be initialized to a non-empty array!
-    # if not state('remove_path_levels'):
-    #     st.session_state.remove_path_levels = 4
     if not state('file_regex'):
         st.session_state.file_regex = False
     if not state('show_hidden'):
         st.session_state.show_hidden = True
+
+    if not state('remove_path_levels'):
+        st.session_state.remove_path_levels = 4
 
     # Add a sidebar for control and display.
     with st.sidebar:
@@ -306,8 +349,8 @@ if __name__ == '__main__':
         if count:
             st.button(f"Clear Selected File List", help=f"Click here to clear your selected file list.", on_click=clear_selected_files)
 
-        # # Number of subdir levels to remove from paths (default is 4)
-        # st.session_state['remove_path_levels'] = st.number_input(f"Number of prefix subdirs to remove for relative paths", min_value=0, value=4)   
+        # Number of subdir levels to remove from paths (default is 4)
+        st.session_state['remove_path_levels'] = st.number_input(f"Number of prefix subdirs to remove for relative paths", min_value=0, value=4)   
 
         if count > 0:
             st.button(f"Go for Processing {count} File{'s'[:count^1]}!", help=f"Click here once all files have been selected for processing.", on_click=go_for_processing)

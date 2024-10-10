@@ -1,3 +1,9 @@
+# Add Template Tracking
+
+A clone of https://github.com/Digital-Grinnell/streamlit_explorer, this app allows for selection of one or more files, presumably [Liquid](https://shopify.github.io/liquid/) templates, and adds `<!-- comment -->` and `<!-- /comment -->` tags to the top and bottom of the file.  These comments, when properly positioned, show up when a webpage is inspected and this can help one follow the flow of the templates when in use.  
+
+> What follows is from the original file browser project and may be obsolete.  
+
 # Streamlit File Browser
 
 This is a Streamlit application that acts as a file browser allowing you to navigate through folders and view the files and subfolders. It provides a convenient way to explore the file system and select files for further processing or analysis.
